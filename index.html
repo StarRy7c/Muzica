@@ -9,8 +9,200 @@
 
   <h1 class="text-4xl font-bold text-center text-white mb-8 animate-bounce">Muzica Playlist</h1>
 
+  <div id="playlist" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+
+  <script>
+    const songs = [
+      {
+        title: "The Scientist - Coldplay",
+        thumbnail: "https://i.scdn.co/image/ab67616d0000b273d2cb8a1385bb5dddb58a4c4d",
+        videoUrl: "https://your_video_link_here.mp4", 
+        musicUrl: "https://your_music_link_here.mp3",
+        lyricsUrl: "https://raw.githubusercontent.com/StarRy7c/Muzica/main/coldplay%20-%20The%20Scientist.lrc"
+      },
+      {
+        title: "Fix You - Coldplay",
+        thumbnail: "https://upload.wikimedia.org/wikipedia/en/8/8a/Coldplay_-_Fix_You.png",
+        videoUrl: "https://your_video_link_here.mp4",
+        musicUrl: "https://your_music_link_here.mp3",
+        lyricsUrl: "https://your_fixyou_lrc_file_link_here.lrc"
+      },
+      {
+        title: "Let Her Go - Passenger",
+        thumbnail: "https://upload.wikimedia.org/wikipedia/en/6/69/Passenger_-_Let_Her_Go.png",
+        videoUrl: "https://your_video_link_here.mp4",
+        musicUrl: "https://your_music_link_here.mp3",
+        lyricsUrl: "https://your_lethergo_lrc_file_link_here.lrc"
+      },
+      {
+        title: "Shape of You - Ed Sheeran",
+        thumbnail: "https://upload.wikimedia.org/wikipedia/en/4/45/Shape_Of_You_%28Official_Single_Cover%29_by_Ed_Sheeran.png",
+        videoUrl: "https://your_video_link_here.mp4",
+        musicUrl: "https://your_music_link_here.mp3",
+        lyricsUrl: "https://your_shapeofyou_lrc_file_link_here.lrc"
+      },
+      {
+        title: "Someone Like You - Adele",
+        thumbnail: "https://upload.wikimedia.org/wikipedia/en/7/72/Adele_-_Someone_Like_You.png",
+        videoUrl: "https://your_video_link_here.mp4",
+        musicUrl: "https://your_music_link_here.mp3",
+        lyricsUrl: "https://your_someonelikeyou_lrc_file_link_here.lrc"
+      }
+    ];
+
+    const playlist = document.getElementById('playlist');
+    let activePlayer = null;
+
+    function removePlayer() {
+      if (activePlayer) {
+        activePlayer.remove();
+        activePlayer = null;
+      }
+    }
+
+    function parseLRC(lrcText) {
+      const lines = lrcText.split('\n');
+      const parsed = [];
+      for (let line of lines) {
+        const match = line.match(/(\d{2}):(\d{2})(?:\.(\d{2}))?(.*)/);
+        if (match) {
+          const minutes = parseInt(match[1]);
+          const seconds = parseInt(match[2]);
+          const ms = match[3] ? parseInt(match[3]) : 0;
+          const time = minutes * 60 + seconds + ms / 100;
+          const text = match[4].trim();
+          parsed.push({ time, text });
+        }
+      }
+      return parsed;
+    }
+
+    function syncLyricsPro(media, lyrics) {
+      const lyricsContainer = document.getElementById('lyricsText');
+      if (!lyricsContainer) return;
+
+      lyricsContainer.innerHTML = lyrics.map((line, idx) => `
+        <p id="line-${idx}" class="transition-all duration-300">${line.text}</p>
+      `).join('');
+
+      let currentIndex = 0;
+
+      function update() {
+        const currentTime = media.currentTime;
+
+        while (currentIndex < lyrics.length && currentTime >= lyrics[currentIndex].time) {
+          if (currentIndex > 0)
+            document.getElementById(`line-${currentIndex-1}`).classList.remove('text-yellow-300', 'text-2xl', 'font-bold');
+          const currentLine = document.getElementById(`line-${currentIndex}`);
+          currentLine.classList.add('text-yellow-300', 'text-2xl', 'font-bold');
+          currentLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          currentIndex++;
+        }
+
+        if (!media.paused && !media.ended) {
+          requestAnimationFrame(update);
+        }
+      }
+
+      media.addEventListener('play', () => {
+        currentIndex = 0;
+        update();
+      });
+
+      media.addEventListener('seeked', () => {
+        currentIndex = lyrics.findIndex(l => l.time > media.currentTime);
+      });
+    }
+
+    function playMedia(index, type) {
+      removePlayer();
+
+      const songElements = playlist.children;
+      const songElement = songElements[index];
+
+      const playerDiv = document.createElement('div');
+      playerDiv.className = "bg-white bg-opacity-30 p-4 rounded-2xl mt-6 flex flex-col items-center fade-in";
+      playerDiv.id = "active-player";
+
+      const media = document.createElement(type === 'video' ? 'video' : 'audio');
+      media.src = songs[index][type === 'video' ? 'videoUrl' : 'musicUrl'];
+      media.controls = true;
+      media.className = "rounded-xl mb-4 w-full max-w-md";
+      playerDiv.appendChild(media);
+
+      const fontSelector = document.createElement('select');
+      fontSelector.className = "mb-4 p-2 rounded text-black";
+      fontSelector.innerHTML = `
+        <option value="'Poppins', sans-serif">Poppins</option>
+        <option value="'Courier Prime', monospace">Courier</option>
+        <option value="'Merriweather', serif">Merriweather</option>
+        <option value="'Caveat', cursive">Handwritten</option>
+      `;
+      fontSelector.onchange = (e) => {
+        if (document.getElementById('lyricsText'))
+          document.getElementById('lyricsText').style.fontFamily = e.target.value;
+      };
+      playerDiv.appendChild(fontSelector);
+
+      const lyricsButton = document.createElement('button');
+      lyricsButton.innerText = "Show Lyrics";
+      lyricsButton.className = "bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-xl mb-4 transition-all";
+      playerDiv.appendChild(lyricsButton);
+
+      const lyricsDiv = document.createElement('div');
+      lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full fade-in relative hidden h-64 overflow-y-auto";
+      lyricsDiv.id = "lyricsContainer";
+      lyricsDiv.innerHTML = `<div id="lyricsText" class="whitespace-pre-wrap text-center text-lg space-y-2"></div>`;
+      playerDiv.appendChild(lyricsDiv);
+
+      songElement.insertAdjacentElement('afterend', playerDiv);
+      activePlayer = playerDiv;
+
+      fetch(songs[index].lyricsUrl)
+        .then(response => response.text())
+        .then(data => {
+          const parsedLyrics = parseLRC(data);
+          lyricsButton.onclick = () => {
+            lyricsDiv.classList.remove('hidden');
+            syncLyricsPro(media, parsedLyrics);
+            lyricsButton.disabled = true;
+            lyricsButton.innerText = "Lyrics Showing...";
+          };
+        })
+        .catch(err => {
+          console.error("Lyrics failed to load.", err);
+        });
+    }
+
+    songs.forEach((song, index) => {
+      const songDiv = document.createElement('div');
+      songDiv.className = "bg-white bg-opacity-20 p-6 rounded-2xl flex flex-col items-center transition-all hover:scale-105";
+      songDiv.innerHTML = `
+        <img src="${song.thumbnail}" class="w-32 h-32 rounded-full mb-4 shadow-lg">
+        <h2 class="text-white font-bold text-xl mb-4 text-center">${song.title}</h2>
+        <div class="flex gap-4">
+          <button onclick="playMedia(${index}, 'video')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg">Play Video</button>
+          <button onclick="playMedia(${index}, 'music')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Play Music</button>
+        </div>
+      `;
+      playlist.appendChild(songDiv);
+    });
+
+  </script>
+</body>
+</html><!--DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Muzica - Starry's Playlist</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-indigo-400 to-pink-400 min-h-screen p-6">
+
+  <h1 class="text-4xl font-bold text-center text-white mb-8 animate-bounce">Muzica Playlist</h1>
+
   <div id="playlist" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <!-- Songs will be injected here -->
+  
   </div>
 
   <script>
