@@ -158,7 +158,7 @@
       songElement.insertAdjacentElement('afterend', playerDiv);
       activePlayer = playerDiv;
 
-      fetch(songs[index].lyricsUrl)
+      fetch(`https://corsproxy.io/?${encodeURIComponent(songs[index].lyricsUrl)}`)
         .then(response => response.text())
         .then(data => {
           const parsedLyrics = parseLRC(data);
