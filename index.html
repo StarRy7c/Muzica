@@ -3,6 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animated Music Playlist</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Caveat&family=Courier+Prime&family=Merriweather&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5a623, #f76b1c, #f50057, #651fff);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .highlight {
+      color: #ffeb3b;
+      font-weight: bold;
+      text-shadow: 0 0 10px #ffeb3b;
+    }
+    .fade-in {
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body class="text-white min-h-screen flex flex-col items-center p-5">
+
+  <h1 class="text-4xl font-bold mb-8 animate-bounce">My Colorful Playlist</h1>
+
+  <div id="playlist" class="flex flex-col gap-8 w-full max-w-4xl">
+    <!-- Songs injected here -->
+  </div>
+
+<script>
+const songs = [
+  {
+    title: "The Scientist",
+    thumbnail: "download (2).jpeg",
+    videoUrl: "Coldplay - The Scientist (Official 4K Video)(480P).mp4",
+    musicUrl: "Coldplay - The Scientist (Official 4K Video)(MP3_160K).mp3",
+    lyricsUrl: "coldplay - The Scientist.lrc"
+  },
+  // You can add more songs here
+];
+
+const playlist = document.getElementById('playlist');
+let activePlayer = null;
+let lyricsInterval = null;
+
+songs.forEach((song, index) => {
+  const songDiv = document.createElement('div');
+  songDiv.className = "bg-white bg-opacity-20 hover:bg-opacity-30 p-5 rounded-xl cursor-pointer transform hover:scale-105 transition-all shadow-lg";
+  songDiv.innerHTML = `
+    <img src="${song.thumbnail}" alt="${song.title}" class="rounded-xl mb-4 mx-auto">
+    <h3 class="text-2xl font-semibold text-center mb-2">${song.title}</h3>
+    <div class="flex justify-center gap-4">
+      <button onclick="playMedia(${index}, 'video')" class="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-xl transition-all">Play Video</button>
+      <button onclick="playMedia(${index}, 'audio')" class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-xl transition-all">Play Music</button>
+    </div>
+  `;
+  playlist.appendChild(songDiv);
+});
+
+function playMedia(index, type) {
+  removePlayer();
+
+  const songElements = playlist.children;
+  const songElement = songElements[index];
+
+  const playerDiv = document.createElement('div');
+  playerDiv.className = "bg-white bg-opacity-30 p-4 rounded-2xl mt-6 flex flex-col items-center fade-in";
+  playerDiv.id = "active-player";
+
+  const media = document.createElement(type === 'video' ? 'video' : 'audio');
+  media.src = songs[index][type === 'video' ? 'videoUrl' : 'musicUrl'];
+  media.controls = true;
+  media.className = "rounded-xl mb-4 w-full max-w-md";
+  playerDiv.appendChild(media);
+
+  // Font selection
+  const fontSelector = document.createElement('select');
+  fontSelector.className = "mb-4 p-2 rounded text-black";
+  fontSelector.innerHTML = `
+    <option value="'Poppins', sans-serif">Poppins</option>
+    <option value="'Courier Prime', monospace">Courier</option>
+    <option value="'Merriweather', serif">Merriweather</option>
+    <option value="'Caveat', cursive">Handwritten</option>
+  `;
+  fontSelector.onchange = (e) => {
+    if (document.getElementById('lyricsText'))
+      document.getElementById('lyricsText').style.fontFamily = e.target.value;
+  };
+  playerDiv.appendChild(fontSelector);
+
+  const lyricsDiv = document.createElement('div');
+  lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full fade-in relative hidden";
+  lyricsDiv.id = "lyricsContainer";
+  lyricsDiv.innerHTML = `
+    <div id="lyricsText" class="whitespace-pre-wrap text-center text-lg"></div>
+  `;
+  playerDiv.appendChild(lyricsDiv);
+
+  songElement.insertAdjacentElement('afterend', playerDiv);
+  activePlayer = playerDiv;
+
+  loadLyrics(songs[index].lyricsUrl, media);
+}
+
+function loadLyrics(url, media) {
+  fetch(url)
+    .then(response => response.text())
+    .then(data => {
+      const parsedLyrics = parseLRC(data);
+      if (parsedLyrics.length > 0) {
+        document.getElementById('lyricsContainer').classList.remove('hidden');
+        syncLyrics(media, parsedLyrics);
+      }
+    })
+    .catch(err => {
+      console.error("Lyrics failed to load.", err);
+    });
+}
+
+function parseLRC(lrc) {
+  const lines = lrc.split('\n');
+  const result = [];
+  for (let line of lines) {
+    const match = line.match(/(\d+):(\d+(\.\d+)?)(.+)/);
+    if (match) {
+      const min = parseInt(match[1]);
+      const sec = parseFloat(match[2]);
+      const text = match[4].trim();
+      result.push({ time: min * 60 + sec, text });
+    }
+  }
+  return result;
+}
+
+function syncLyrics(media, lyrics) {
+  const lyricsText = document.getElementById('lyricsText');
+  let currentLine = 0;
+
+  clearInterval(lyricsInterval);
+  lyricsInterval = setInterval(() => {
+    const currentTime = media.currentTime;
+    if (currentLine < lyrics.length - 1 && currentTime >= lyrics[currentLine + 1].time) {
+      currentLine++;
+    }
+    if (lyrics[currentLine]) {
+      lyricsText.innerHTML = lyrics.map((line, index) => 
+        `<div class="${index === currentLine ? 'highlight' : ''}">${line.text}</div>`
+      ).join('');
+    }
+  }, 500);
+}
+
+function removePlayer() {
+  if (activePlayer) {
+    activePlayer.remove();
+    activePlayer = null;
+  }
+  clearInterval(lyricsInterval);
+}
+</script>
+
+</body>
+</html><!--DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Colorful Music Playlist</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
@@ -25,7 +200,7 @@
   <h1 class="text-4xl font-bold mb-8 animate-bounce">My Colorful Playlist</h1>
 
   <div id="playlist" class="flex flex-col gap-8 w-full max-w-4xl">
-    <!-- Songs injected here -->
+  
   </div>
 
 <script>
