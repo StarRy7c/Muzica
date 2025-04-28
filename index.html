@@ -24,11 +24,161 @@
 
   <h1 class="text-4xl font-bold mb-8 animate-bounce">My Colorful Playlist</h1>
 
-  <div id="playlist" class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
-    <!-- Songs will be injected by JavaScript -->
+  <div id="playlist" class="flex flex-col gap-8 w-full max-w-4xl">
+    <!-- Songs injected here -->
   </div>
 
-  <!-- Modal -->
+<script>
+  const songs = [
+    {
+      title: "Song One",
+      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+One",
+      videoUrl: "https://yourgithub.com/video1.mp4",
+      musicUrl: "https://yourgithub.com/music1.mp3",
+      lyricsUrl: "https://yourgithub.com/lyrics1.txt"
+    },
+    {
+      title: "Song Two",
+      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Two",
+      videoUrl: "https://yourgithub.com/video2.mp4",
+      musicUrl: "https://yourgithub.com/music2.mp3",
+      lyricsUrl: "https://yourgithub.com/lyrics2.txt"
+    },
+    {
+      title: "Song Three",
+      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Three",
+      videoUrl: "https://yourgithub.com/video3.mp4",
+      musicUrl: "https://yourgithub.com/music3.mp3",
+      lyricsUrl: "https://yourgithub.com/lyrics3.txt"
+    },
+    {
+      title: "Song Four",
+      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Four",
+      videoUrl: "https://yourgithub.com/video4.mp4",
+      musicUrl: "https://yourgithub.com/music4.mp3",
+      lyricsUrl: "https://yourgithub.com/lyrics4.txt"
+    },
+    {
+      title: "Song Five",
+      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Five",
+      videoUrl: "https://yourgithub.com/video5.mp4",
+      musicUrl: "https://yourgithub.com/music5.mp3",
+      lyricsUrl: "https://yourgithub.com/lyrics5.txt"
+    },
+  ];
+
+  const playlist = document.getElementById('playlist');
+  let activePlayer = null;
+
+  songs.forEach((song, index) => {
+    const songDiv = document.createElement('div');
+    songDiv.className = "bg-white bg-opacity-20 hover:bg-opacity-30 p-5 rounded-xl cursor-pointer transform hover:scale-105 transition-all shadow-lg";
+    songDiv.innerHTML = `
+      <img src="${song.thumbnail}" alt="${song.title}" class="rounded-xl mb-4 mx-auto">
+      <h3 class="text-2xl font-semibold text-center mb-2">${song.title}</h3>
+      <div class="flex justify-center gap-4">
+        <button onclick="playMedia(${index}, 'video')" class="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-xl transition-all">Play Video</button>
+        <button onclick="playMedia(${index}, 'audio')" class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-xl transition-all">Play Music</button>
+      </div>
+    `;
+    playlist.appendChild(songDiv);
+  });
+
+  function playMedia(index, type) {
+    removePlayer();
+
+    const songElements = playlist.children;
+    const songElement = songElements[index];
+
+    // Create a player container
+    const playerDiv = document.createElement('div');
+    playerDiv.className = "bg-white bg-opacity-30 p-4 rounded-2xl mt-6 flex flex-col items-center animate-fade-in";
+    playerDiv.id = "active-player";
+
+    if (type === 'video') {
+      playerDiv.innerHTML = `
+        <video src="${songs[index].videoUrl}" controls class="rounded-xl mb-4 w-full max-w-md"></video>
+      `;
+    } else {
+      playerDiv.innerHTML = `
+        <audio src="${songs[index].musicUrl}" controls class="w-full max-w-md mb-4"></audio>
+      `;
+    }
+
+    const lyricsBtn = document.createElement('button');
+    lyricsBtn.className = "bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-6 rounded-xl transition-all";
+    lyricsBtn.innerText = "Show Lyrics";
+    lyricsBtn.onclick = () => showLyrics(index, playerDiv);
+
+    playerDiv.appendChild(lyricsBtn);
+
+    // Insert the player right after the selected song
+    songElement.insertAdjacentElement('afterend', playerDiv);
+    activePlayer = playerDiv;
+  }
+
+  function showLyrics(index, parentDiv) {
+    const lyricsDiv = document.createElement('div');
+    lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full animate-fade-in relative";
+
+    lyricsDiv.innerHTML = `
+      <button onclick="this.parentElement.remove()" class="absolute top-2 right-4 text-2xl">&times;</button>
+      <pre id="lyricsText" class="whitespace-pre-wrap"></pre>
+    `;
+
+    parentDiv.appendChild(lyricsDiv);
+
+    // Fetch and display lyrics
+    fetch(songs[index].lyricsUrl)
+      .then(response => response.text())
+      .then(text => {
+        lyricsDiv.querySelector('#lyricsText').innerText = text;
+      })
+      .catch(err => {
+        lyricsDiv.querySelector('#lyricsText').innerText = "Failed to load lyrics.";
+      });
+  }
+
+  function removePlayer() {
+    if (activePlayer) {
+      activePlayer.remove();
+      activePlayer = null;
+    }
+  }
+</script>
+
+</body>
+</html><!--DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Colorful Music Playlist</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5a623, #f76b1c, #f50057, #651fff);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  </style>
+</head>
+<body class="text-white min-h-screen flex flex-col items-center p-5">
+
+  <h1 class="text-4xl font-bold mb-8 animate-bounce">My Colorful Playlist</h1>
+
+  <div id="playlist" class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+  
+  </div>
+
+
   <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
     <div class="bg-white text-black p-6 rounded-2xl shadow-xl w-11/12 max-w-md relative">
       <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black text-2xl">&times;</button>
@@ -41,7 +191,7 @@
     </div>
   </div>
 
-  <!-- Lyrics Modal -->
+  
   <div id="lyricsModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
     <div class="bg-gradient-to-br from-pink-400 to-purple-600 text-white p-6 rounded-2xl shadow-xl w-11/12 max-w-lg relative overflow-y-auto max-h-[80vh]">
       <button onclick="closeLyrics()" class="absolute top-3 right-3 text-white hover:text-gray-300 text-2xl">&times;</button>
