@@ -1,4 +1,123 @@
-<!DOCTYPE html>
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Muzica - Starry's Playlist</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes rotateSlowly {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .rotating {
+      animation: rotateSlowly 20s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-400 to-pink-400 min-h-screen p-6">
+  <h1 class="text-4xl font-bold text-center text-white mb-8 animate-bounce">Muzica Playlist</h1>
+  <div id="playerContainer" class="flex flex-col items-center"></div>
+  <div id="playlist" class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8"></div>  <script>
+    const songs = [
+      {
+        title: "The Scientist - Coldplay",
+        thumbnail: "download (2).jpeg",
+        videoUrl: "Coldplay - The Scientist (Official 4K Video)(480P).mp4",
+        musicUrl: "Coldplay - The Scientist (Official 4K Video)(MP3_160K).mp3",
+        lyrics: `Come up to meet you, tell you I'm sorry\nYou don't know how lovely you are...`
+      },
+      {
+        title: "Fix You - Coldplay",
+        thumbnail: "https://upload.wikimedia.org/wikipedia/en/8/8a/Coldplay_-_Fix_You.png",
+        videoUrl: "https://your_video_link_here.mp4",
+        musicUrl: "https://your_music_link_here.mp3",
+        lyrics: `When you try your best but you don't succeed...`
+      }
+      // Add more songs similarly
+    ];
+
+    let currentIndex = 0;
+    let currentType = 'music';
+    const playerContainer = document.getElementById('playerContainer');
+
+    function playMedia(index, type) {
+      currentIndex = index;
+      currentType = type;
+      const song = songs[index];
+      playerContainer.innerHTML = '';
+
+      const media = document.createElement(type === 'video' ? 'video' : 'audio');
+      media.src = song[type === 'video' ? 'videoUrl' : 'musicUrl'];
+      media.controls = true;
+      media.autoplay = true;
+      media.className = "rounded-xl mb-4 w-full max-w-md";
+
+      media.onended = () => {
+        const nextIndex = (currentIndex + 1) % songs.length;
+        playMedia(nextIndex, currentType);
+      };
+
+      const img = document.createElement('img');
+      img.src = song.thumbnail;
+      img.className = "w-40 h-40 rounded-full rotating shadow-xl mb-4";
+
+      const title = document.createElement('h2');
+      title.textContent = song.title;
+      title.className = "text-white text-2xl font-bold mb-2";
+
+      const fontSelector = document.createElement('select');
+      fontSelector.className = "mb-2 p-2 rounded text-black";
+      fontSelector.innerHTML = `
+        <option value="Poppins">Poppins</option>
+        <option value="Courier New">Courier</option>
+        <option value="Merriweather">Merriweather</option>
+        <option value="Caveat">Handwritten</option>
+      `;
+
+      const lyricsBtn = document.createElement('button');
+      lyricsBtn.textContent = 'Show Lyrics';
+      lyricsBtn.className = 'bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-xl mb-4';
+
+      const lyricsDiv = document.createElement('div');
+      lyricsDiv.className = 'hidden text-white p-4 bg-purple-600 bg-opacity-30 rounded-xl text-center space-y-2';
+
+      lyricsBtn.onclick = () => {
+        lyricsDiv.classList.toggle('hidden');
+        lyricsDiv.style.fontFamily = fontSelector.value;
+        lyricsDiv.innerHTML = song.lyrics.split('\n').map(line => `<p class='text-${randomColor()}'>${line}</p>`).join('');
+      };
+
+      fontSelector.onchange = () => {
+        lyricsDiv.style.fontFamily = fontSelector.value;
+      };
+
+      playerContainer.appendChild(img);
+      playerContainer.appendChild(title);
+      playerContainer.appendChild(media);
+      playerContainer.appendChild(fontSelector);
+      playerContainer.appendChild(lyricsBtn);
+      playerContainer.appendChild(lyricsDiv);
+    }
+
+    function randomColor() {
+      const colors = ['red-300', 'yellow-300', 'green-300', 'blue-300', 'pink-300', 'purple-300'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    songs.forEach((song, index) => {
+      const songDiv = document.createElement('div');
+      songDiv.className = "bg-white bg-opacity-20 p-6 rounded-2xl flex flex-col items-center hover:scale-105 transition-transform";
+      songDiv.innerHTML = `
+        <img src="${song.thumbnail}" class="w-24 h-24 rounded-full mb-4 shadow-lg">
+        <h2 class="text-white font-bold text-lg mb-4 text-center">${song.title}</h2>
+        <div class="flex gap-4">
+          <button onclick="playMedia(${index}, 'video')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg">Play Video</button>
+          <button onclick="playMedia(${index}, 'music')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Play Music</button>
+        </div>
+      `;
+      document.getElementById('playlist').appendChild(songDiv);
+    });
+  </script></body>
+</html><!--DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
