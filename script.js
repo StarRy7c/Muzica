@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const playlists = {
         en: [
             {
-                id: 'en1',
-                imageUrl: 'https://via.placeholder.com/150/FF5733/FFFFFF?text=Pop',
+                id: 'https://starry7c.github.io/Muzica/musics.html',
+                imageUrl: 'download (2).jpeg',
                 title: 'Top Pop Hits',
                 description: 'Catch the latest chart-topping pop anthems.'
             },
