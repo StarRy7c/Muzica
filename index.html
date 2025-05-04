@@ -26,18 +26,26 @@
   <button id="showSearch">Search a song on the internet</button>
 
   <div id="searchSection" style="display: none;">
-    <input type="text" id="searchInput" placeholder="Search any song type here...">
+    <input type="text" id="searchInput" placeholder="Enter a song name...">
     <button id="searchBtn">Search</button>
     <br><br>
-    <iframe id="videoFrame" width="100%" height="285" frameborder="0" allowfullscreen></iframe>
+    <iframe id="videoFrame" width="100%" height="315" frameborder="0" allowfullscreen></iframe>
   </div>
 
   <script>
+    document.getElementById('showSearch').addEventListener('click', function () {
+      document.getElementById('searchSection').style.display = 'block';
+      this.style.display = 'none';
+    });
+
     document.getElementById('searchBtn').addEventListener('click', function () {
-  let query = document.getElementById('searchInput').value;
-  if (!query.toLowerCase().includes('song')) {
-    query += ' song'; // Add "song" to the search query if not already present
-  }
+      let userInput = document.getElementById('searchInput').value.trim();
+      if (!userInput) {
+        alert("Please enter something to search.");
+        return;
+      }
+
+      const query = userInput + " song";  // Append "song" to the query
       const apiKey = 'AIzaSyAdQa6K5hJvoI5JFqAsktLWfHm2ggTFdJs';
 
       fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`)
