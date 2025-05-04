@@ -83,8 +83,14 @@
     
     <button id="searchBtn">Search</button>
     <br><br>
-    <iframe id="videoFrame" width="100%" height="285" frameborder="0" allowfullscreen></iframe>
-  </div>
+    <iframe 
+    id="videoFrame" 
+    sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation" 
+    frameborder="0" 
+    allowfullscreen="true" 
+    scrolling="no">
+    </iframe>
+    </div>
 
   <script>
     let selectedStyle = '';
