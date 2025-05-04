@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Playlist Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for active button and potential ripple (optional) */
+        .active-lang {
+            background-color: #ec4899; /* pink-600 */
+            box-shadow: 0 0 0 2px #1f2937, 0 0 0 4px #ec4899; /* focus:ring-offset-gray-900 focus:ring-pink-600 */
+            transform: scale(1.05);
+        }
+        /* Optional basic ripple effect styling */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple-effect 0.6s linear;
+            pointer-events: none; /* Important */
+        }
+        @keyframes ripple-effect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-800 min-h-screen text-white font-sans">
+
+    <div class="container mx-auto p-6 md:p-10">
+
+        <div class="flex justify-center space-x-4 mb-10">
+            <button id="lang-en"
+                    class="lang-toggle bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 px-6 rounded-full font-semibold shadow-md hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 focus:ring-offset-gray-900 transition-all duration-300 ease-in-out active-lang">
+                English
+            </button>
+            <button id="lang-hi"
+                    class="lang-toggle bg-gradient-to-r from-purple-600 to-pink-500 text-white py-2 px-6 rounded-full font-semibold shadow-md hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 focus:ring-offset-gray-900 transition-all duration-300 ease-in-out">
+                Hindi
+            </button>
+        </div>
+
+        <div id="playlist-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
