@@ -1,7 +1,77 @@
-<div id="iframe-container" style="display: none; text-align: center; margin-top: 30px;">
-  <iframe id="playlist-iframe" width="100%" height="400" style="max-width: 800px;"
-          frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        #searchInput {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #searchBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #searchBtn:hover {
+            background-color: #0056b3;
+        }
+
+        iframe {
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <input type="text" id="searchInput" placeholder="Search a song...">
+    <button id="searchBtn">Search</button>
+
+    <iframe id="videoFrame" width="100%" height="315" frameborder="0" allowfullscreen></iframe>
+
+    <script>
+        document.getElementById('searchBtn').addEventListener('click', function () {
+            const query = document.getElementById('searchInput').value;
+            const apiKey = 'AIzaSyAdQa6K5hJvoI5JFqAsktLWfHm2ggTFdJs';
+
+            fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.items && data.items.length > 0) {
+                        const videoId = data.items[0].id.videoId;
+                        // Embed the video with autoplay enabled
+                        document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+                    } else {
+                        alert("No video found.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Error occurred while searching.");
+                });
+        });
+    </script>
+
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,19 +104,8 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-800 min-h-screen text-white font-sans">
-<div id="search-section" style="margin: 20px auto; text-align: center; max-width: 600px;">
-    <input type="text" id="searchQuery" placeholder="Search for a song..." 
-           style="padding: 10px; width: 70%; border-radius: 8px; border: 1px solid #ccc;">
-    <button onclick="onSearchClick()" 
-            style="padding: 10px 20px; margin-left: 10px; border: none; background-color: #4f46e5; color: white; border-radius: 8px; cursor: pointer;">
-        Search
-    </button>
-</div>
 
-<input type="text" id="searchInput" placeholder="Search a song...">
-<button id="searchBtn">Search</button>
-<iframe id="videoFrame" width="100%" height="315" frameborder="0" allowfullscreen></iframe>
-    <div class="container mx-auto p-6 md:p-10">
+<div class="container mx-auto p-6 md:p-10">
 
         <div class="flex justify-center space-x-4 mb-10">
             <button id="lang-en"
