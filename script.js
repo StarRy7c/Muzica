@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageUrl: 'uD6zENCJz1g-HD (1).jpg', // Make sure this image exists in the same folder as index.html or path is correct
                 title: 'Top Pop Hits',
                 description: 'Catch the latest chart-topping pop anthems.',
-                playlistUrl: 'https://starry7c.github.io/Muzica/musics.html'
+                playlistUrl: 'https://starry7c.github.io/Muzica/Musics.html'
             }, // <-- Fixed comma
             { // Second object
                 id: 'en2',
