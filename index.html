@@ -9,6 +9,23 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     body {
+      .circular-thumbnail {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border: 5px solid white;
+}
+
+.rotating {
+  animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #f50057, #651fff, #f76b1c);
       background-size: 400% 400%;
@@ -97,36 +114,56 @@
     });
 
     function playMedia(index, type) {
-      removePlayer();
+  removePlayer();
 
-      const songElements = playlist.children;
-      const songElement = songElements[index];
+  const songElements = playlist.children;
+  const songElement = songElements[index];
 
-      const playerDiv = document.createElement('div');
-      playerDiv.className = "bg-white/20 backdrop-blur-md border border-white/10 p-4 rounded-2xl mt-4 flex flex-col items-center animate-fade-in";
-      playerDiv.id = "active-player";
+  const playerDiv = document.createElement('div');
+  playerDiv.className = "bg-white/20 backdrop-blur-md border border-white/10 p-4 rounded-2xl mt-4 flex flex-col items-center animate-fade-in";
+  playerDiv.id = "active-player";
 
-      if (type === 'video') {
-        playerDiv.innerHTML = `
-          <video src="${songs[index].videoUrl}" controls class="rounded-xl mb-4 w-full max-w-md shadow-lg"></video>
-        `;
-      } else {
-        playerDiv.innerHTML = `
-          <audio src="${songs[index].musicUrl}" controls class="w-full max-w-md mb-4"></audio>
-        `;
-      }
+  const thumb = document.createElement('img');
+  thumb.src = songs[index].thumbnail;
+  thumb.alt = songs[index].title;
+  thumb.className = "circular-thumbnail";
 
-      const lyricsBtn = document.createElement('button');
-      lyricsBtn.className = "bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-6 rounded-xl transition-all";
-      lyricsBtn.innerText = "Show Lyrics";
-      lyricsBtn.onclick = () => showLyrics(index, playerDiv);
+  playerDiv.appendChild(thumb);
 
-      playerDiv.appendChild(lyricsBtn);
+  const media = document.createElement(type === 'video' ? 'video' : 'audio');
+  media.src = type === 'video' ? songs[index].videoUrl : songs[index].musicUrl;
+  media.controls = true;
+  media.className = "w-full max-w-md mb-4";
+  if (type === 'video') media.classList.add("rounded-xl", "shadow-lg");
 
-      songElement.insertAdjacentElement('afterend', playerDiv);
-      activePlayer = playerDiv;
+  media.addEventListener('play', () => {
+    thumb.classList.add('rotating');
+  });
 
-      lucide.createIcons();
+  media.addEventListener('pause', () => {
+    thumb.classList.remove('rotating');
+  });
+
+  media.addEventListener('ended', () => {
+    const nextIndex = index + 1;
+    if (nextIndex < songs.length) {
+      playMedia(nextIndex, type);  // play next song
+    }
+  });
+
+  playerDiv.appendChild(media);
+
+  const lyricsBtn = document.createElement('button');
+  lyricsBtn.className = "bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-6 rounded-xl transition-all";
+  lyricsBtn.innerText = "Show Lyrics";
+  lyricsBtn.onclick = () => showLyrics(index, playerDiv);
+
+  playerDiv.appendChild(lyricsBtn);
+
+  songElement.insertAdjacentElement('afterend', playerDiv);
+  activePlayer = playerDiv;
+
+  lucide.createIcons();
     }
 
     function showLyrics(index, parentDiv) {
