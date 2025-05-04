@@ -145,11 +145,18 @@
   });
 
   media.addEventListener('ended', () => {
-    const nextIndex = index + 1;
-    if (nextIndex < songs.length) {
-      playMedia(nextIndex, type);  // play next song
-    }
-  });
+  const nextIndex = index + 1;
+  if (nextIndex < songs.length) {
+    setTimeout(() => {
+      playMedia(nextIndex, type);
+      // Try to auto-play the next media
+      const nextPlayer = document.querySelector('#active-player video, #active-player audio');
+      nextPlayer?.play().catch(err => {
+        console.warn('Autoplay prevented:', err);
+      });
+    }, 500);
+  }
+});
 
   playerDiv.appendChild(media);
 
@@ -167,24 +174,27 @@
     }
 
     function showLyrics(index, parentDiv) {
-      const lyricsDiv = document.createElement('div');
-      lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full animate-fade-in relative";
+  const lyricsDiv = document.createElement('div');
+  lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full animate-fade-in relative";
 
-      lyricsDiv.innerHTML = `
-        <button onclick="this.parentElement.remove()" class="absolute top-2 right-4 text-2xl">&times;</button>
-        <pre id="lyricsText" class="whitespace-pre-wrap text-sm"></pre>
-      `;
+  lyricsDiv.innerHTML = `
+    <button onclick="this.parentElement.remove()" class="absolute top-2 right-4 text-2xl">&times;</button>
+    <pre id="lyricsText" class="whitespace-pre-wrap text-sm overflow-y-auto max-h-60"></pre>
+  `;
 
-      parentDiv.appendChild(lyricsDiv);
+  parentDiv.appendChild(lyricsDiv);
 
-      fetch(songs[index].lyricsUrl)
-        .then(response => response.text())
-        .then(text => {
-          lyricsDiv.querySelector('#lyricsText').innerText = text;
-        })
-        .catch(() => {
-          lyricsDiv.querySelector('#lyricsText').innerText = "Failed to load lyrics.";
-        });
+  fetch(songs[index].lyricsUrl)
+    .then(response => {
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.text();
+    })
+    .then(text => {
+      lyricsDiv.querySelector('#lyricsText').textContent = text;
+    })
+    .catch(() => {
+      lyricsDiv.querySelector('#lyricsText').textContent = "Failed to load lyrics.";
+    });
     }
 
     function removePlayer() {
