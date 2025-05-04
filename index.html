@@ -2,19 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>StarRy Playlist</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Song Search</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #2c003e, #3d0066);
+      color: white;
       padding: 20px;
+      text-align: center;
+    }
+    #showSearch {
+      background: linear-gradient(90deg, #ff5f6d, #ffc371);
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 30px;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 20px;
     }
     #searchSection {
+      display: none;
       margin-top: 20px;
     }
-    input, button {
-      padding: 10px;
+    input[type="text"] {
+      padding: 12px;
+      width: 80%;
       font-size: 16px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      margin-bottom: 15px;
+      background-color: #fff;
+      color: #000;
+    }
+    .mood-buttons {
+      margin: 10px 0;
+    }
+    .mood-button {
+      background: linear-gradient(90deg, #8e2de2, #4a00e0);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+    .mood-button.active {
+      background: linear-gradient(90deg, #f12711, #f5af19);
+    }
+    #searchBtn {
+      background: linear-gradient(to right, #00b09b, #96c93d);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 30px;
+      cursor: pointer;
     }
     iframe {
       margin-top: 20px;
@@ -25,27 +70,46 @@
 
   <button id="showSearch">Search a song on the internet</button>
 
-  <div id="searchSection" style="display: none;">
-    <input type="text" id="searchInput" placeholder="Enter a song name...">
+  <div id="searchSection">
+    <input type="text" id="searchInput" placeholder="Enter song name...">
+    
+    <div class="mood-buttons">
+      <button class="mood-button" data-style="lofi">Lofi</button>
+      <button class="mood-button" data-style="dj">DJ</button>
+      <button class="mood-button" data-style="slow reverb">Slow Reverb</button>
+      <button class="mood-button" data-style="8D audio">8D Audio</button>
+      <button class="mood-button" data-style="bass boosted">Bass Boosted</button>
+    </div>
+    
     <button id="searchBtn">Search</button>
     <br><br>
     <iframe id="videoFrame" width="100%" height="315" frameborder="0" allowfullscreen></iframe>
   </div>
 
   <script>
+    let selectedStyle = '';
+
     document.getElementById('showSearch').addEventListener('click', function () {
       document.getElementById('searchSection').style.display = 'block';
       this.style.display = 'none';
     });
 
+    document.querySelectorAll('.mood-button').forEach(button => {
+      button.addEventListener('click', function () {
+        document.querySelectorAll('.mood-button').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        selectedStyle = this.getAttribute('data-style');
+      });
+    });
+
     document.getElementById('searchBtn').addEventListener('click', function () {
-      let userInput = document.getElementById('searchInput').value.trim();
+      const userInput = document.getElementById('searchInput').value.trim();
       if (!userInput) {
-        alert("Please enter something to search.");
+        alert("Please enter a song name.");
         return;
       }
 
-      const query = userInput + " song";  // Append "song" to the query
+      const query = `${userInput} song ${selectedStyle}`;
       const apiKey = 'AIzaSyAdQa6K5hJvoI5JFqAsktLWfHm2ggTFdJs';
 
       fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`)
