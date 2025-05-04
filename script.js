@@ -1,3 +1,22 @@
+document.getElementById('searchBtn').addEventListener('click', function () {
+  const query = document.getElementById('searchInput').value;
+  const apiKey = 'AIzaSyAdQa6K5hJvoI5JFqAsktLWfHm2ggTFdJs';
+
+  fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.items && data.items.length > 0) {
+        const videoId = data.items[0].id.videoId;
+        document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      } else {
+        alert("No video found.");
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert("Error occurred while searching.");
+    });
+});
 document.addEventListener('DOMContentLoaded', () => {
     // --- Playlist Data ---
     const playlists = {
