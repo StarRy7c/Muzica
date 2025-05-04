@@ -87,6 +87,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Functions ---
 
+    function onSearchClick() {
+        const query = document.getElementById('searchQuery').value;
+        if (query.trim()) {
+            searchAndPlay(query.trim());
+        }
+    }
+
+    async function searchAndPlay(query) {
+        const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+        try {
+            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(searchUrl)}`);
+            const text = await response.text();
+            const match = text.match(/\/watch\?v=([a-zA-Z0-9_-]{11})/);
+
+            if (match && match[1]) {
+                const videoId = match[1];
+                const iframe = document.getElementById('playlist-iframe');
+                const container = document.getElementById('iframe-container');
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                container.style.display = 'block';
+            } else {
+                alert('No video found.');
+            }
+        } catch (err) {
+            alert('Failed to search YouTube. Check your connection or try again.');
+            console.error(err);
+        }
+    }
     function createPlaylistCardHTML(playlist) {
         // Ensure playlist object and imageUrl are valid before creating HTML
         if (!playlist || typeof playlist.imageUrl === 'undefined') {
