@@ -1,74 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Song Search</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        #searchInput {
-            padding: 10px;
-            width: 300px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        #searchBtn {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        #searchBtn:hover {
-            background-color: #0056b3;
-        }
-
-        iframe {
-            margin-top: 20px;
-            border-radius: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Song Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #searchSection {
+      margin-top: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+    }
+    iframe {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
 
-    <input type="text" id="searchInput" placeholder="Search a song...">
+  <button id="showSearch">Search a song on the internet</button>
+
+  <div id="searchSection" style="display: none;">
+    <input type="text" id="searchInput" placeholder="Search any song type here...">
     <button id="searchBtn">Search</button>
+    <br><br>
+    <iframe id="videoFrame" width="100%" height="285" frameborder="0" allowfullscreen></iframe>
+  </div>
 
-    <iframe id="videoFrame" width="100%" height="315" frameborder="0" allowfullscreen></iframe>
+  <script>
+    document.getElementById('showSearch').addEventListener('click', function () {
+      document.getElementById('searchSection').style.display = 'block';
+      this.style.display = 'none';
+    });
 
-    <script>
-        document.getElementById('searchBtn').addEventListener('click', function () {
-            const query = document.getElementById('searchInput').value;
-            const apiKey = 'AIzaSyAdQa6K5hJvoI5JFqAsktLWfHm2ggTFdJs';
+    document.getElementById('searchBtn').addEventListener('click', function () {
+      const query = document.getElementById('searchInput').value;
+      const apiKey = 'AIzaSyAdQa6K5hJvoI5JFqAsktLWfHm2ggTFdJs';
 
-            fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.items && data.items.length > 0) {
-                        const videoId = data.items[0].id.videoId;
-                        // Embed the video with autoplay enabled
-                        document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
-                    } else {
-                        alert("No video found.");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("Error occurred while searching.");
-                });
+      fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.items && data.items.length > 0) {
+            const videoId = data.items[0].id.videoId;
+            document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+          } else {
+            alert("No video found.");
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert("Error occurred while searching.");
         });
-    </script>
+    });
+  </script>
 
 </body>
 </html>
