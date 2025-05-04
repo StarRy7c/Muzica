@@ -1,967 +1,165 @@
-<!--DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Muzica - Starry's Playlist</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Colorful Music Playlist</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    @keyframes rotateSlowly {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f50057, #651fff, #f76b1c);
+      background-size: 400% 400%;
+      animation: gradientBG 20s ease infinite;
     }
-    .rotating {
-      animation: rotateSlowly 20s linear infinite;
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fade-in 0.5s ease-out;
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-400 to-pink-400 min-h-screen p-6">
-  <h1 class="text-4xl font-bold text-center text-white mb-8 animate-bounce">Muzica Playlist</h1>
-  <div id="playerContainer" class="flex flex-col items-center"></div>
-  <div id="playlist" class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8"></div>  <script>
+<body class="text-white min-h-screen p-5 flex flex-col items-center">
+
+  <h1 class="text-5xl font-bold mb-12 bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500">
+    My Colorful Playlist
+  </h1>
+
+  <div id="playlist" class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl">
+    <!-- Songs will be injected here -->
+  </div>
+
+  <script>
     const songs = [
       {
-        title: "The Scientist - Coldplay",
+        title: "Coldplay - The Scientist (Live in Madrid 2011)",
         thumbnail: "download (2).jpeg",
-        videoUrl: "Coldplay - The Scientist (Official 4K Video)(480P).mp4",
-        musicUrl: "Coldplay - The Scientist (Official 4K Video)(MP3_160K).mp3",
-        lyrics: `Come up to meet you, tell you I'm sorry\nYou don't know how lovely you are...`
+        videoUrl: "Coldplay - The Scientist (Live in Madrid 2011)(480P).mp4",
+        musicUrl: "Coldplay - The Scientist (Live in Madrid 2011)(MP3_160K).mp3",
+        lyricsUrl: "https://raw.githubusercontent.com/StarRy7c/Muzica/main/coldplay%20-%20The%20Scientist.lrc"
       },
       {
-        title: "Fix You - Coldplay",
-        thumbnail: "https://upload.wikimedia.org/wikipedia/en/8/8a/Coldplay_-_Fix_You.png",
-        videoUrl: "https://your_video_link_here.mp4",
-        musicUrl: "https://your_music_link_here.mp3",
-        lyrics: `When you try your best but you don't succeed...`
+        title: "Song Two",
+        thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Two",
+        videoUrl: "#",
+        musicUrl: "#",
+        lyricsUrl: "#"
+      },
+      {
+        title: "Song Three",
+        thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Three",
+        videoUrl: "#",
+        musicUrl: "#",
+        lyricsUrl: "#"
+      },
+      {
+        title: "Song Four",
+        thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Four",
+        videoUrl: "#",
+        musicUrl: "#",
+        lyricsUrl: "#"
       }
-      // Add more songs similarly
     ];
 
-    let currentIndex = 0;
-    let currentType = 'music';
-    const playerContainer = document.getElementById('playerContainer');
+    const playlist = document.getElementById('playlist');
+    let activePlayer = null;
+
+    songs.forEach((song, index) => {
+      const card = document.createElement('div');
+      card.className = "bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl shadow-xl hover:scale-105 transition-all animate-fade-in";
+
+      card.innerHTML = `
+        <div class="relative">
+          <img src="${song.thumbnail}" alt="${song.title}" class="rounded-xl mb-4 w-full h-48 object-cover"/>
+        </div>
+        <h3 class="text-xl font-semibold text-center mb-4">${song.title}</h3>
+        <div class="flex justify-center gap-4">
+          <button onclick="playMedia(${index}, 'video')" class="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-xl transition-all">
+            <i data-lucide="play-circle"></i> Video
+          </button>
+          <button onclick="playMedia(${index}, 'audio')" class="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-xl transition-all">
+            <i data-lucide="music"></i> Music
+          </button>
+        </div>
+      `;
+
+      playlist.appendChild(card);
+    });
 
     function playMedia(index, type) {
-      currentIndex = index;
-      currentType = type;
-      const song = songs[index];
-      playerContainer.innerHTML = '';
+      removePlayer();
 
-      const media = document.createElement(type === 'video' ? 'video' : 'audio');
-      media.src = song[type === 'video' ? 'videoUrl' : 'musicUrl'];
-      media.controls = true;
-      media.autoplay = true;
-      media.className = "rounded-xl mb-4 w-full max-w-md";
+      const songElements = playlist.children;
+      const songElement = songElements[index];
 
-      media.onended = () => {
-        const nextIndex = (currentIndex + 1) % songs.length;
-        playMedia(nextIndex, currentType);
-      };
+      const playerDiv = document.createElement('div');
+      playerDiv.className = "bg-white/20 backdrop-blur-md border border-white/10 p-4 rounded-2xl mt-4 flex flex-col items-center animate-fade-in";
+      playerDiv.id = "active-player";
 
-      const img = document.createElement('img');
-      img.src = song.thumbnail;
-      img.className = "w-40 h-40 rounded-full rotating shadow-xl mb-4";
-
-      const title = document.createElement('h2');
-      title.textContent = song.title;
-      title.className = "text-white text-2xl font-bold mb-2";
-
-      const fontSelector = document.createElement('select');
-      fontSelector.className = "mb-2 p-2 rounded text-black";
-      fontSelector.innerHTML = `
-        <option value="Poppins">Poppins</option>
-        <option value="Courier New">Courier</option>
-        <option value="Merriweather">Merriweather</option>
-        <option value="Caveat">Handwritten</option>
-      `;
+      if (type === 'video') {
+        playerDiv.innerHTML = `
+          <video src="${songs[index].videoUrl}" controls class="rounded-xl mb-4 w-full max-w-md shadow-lg"></video>
+        `;
+      } else {
+        playerDiv.innerHTML = `
+          <audio src="${songs[index].musicUrl}" controls class="w-full max-w-md mb-4"></audio>
+        `;
+      }
 
       const lyricsBtn = document.createElement('button');
-      lyricsBtn.textContent = 'Show Lyrics';
-      lyricsBtn.className = 'bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-xl mb-4';
+      lyricsBtn.className = "bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-6 rounded-xl transition-all";
+      lyricsBtn.innerText = "Show Lyrics";
+      lyricsBtn.onclick = () => showLyrics(index, playerDiv);
 
-      const lyricsDiv = document.createElement('div');
-      lyricsDiv.className = 'hidden text-white p-4 bg-purple-600 bg-opacity-30 rounded-xl text-center space-y-2';
-
-      lyricsBtn.onclick = () => {
-        lyricsDiv.classList.toggle('hidden');
-        lyricsDiv.style.fontFamily = fontSelector.value;
-        lyricsDiv.innerHTML = song.lyrics.split('\n').map(line => `<p class='text-${randomColor()}'>${line}</p>`).join('');
-      };
-
-      fontSelector.onchange = () => {
-        lyricsDiv.style.fontFamily = fontSelector.value;
-      };
-
-      playerContainer.appendChild(img);
-      playerContainer.appendChild(title);
-      playerContainer.appendChild(media);
-      playerContainer.appendChild(fontSelector);
-      playerContainer.appendChild(lyricsBtn);
-      playerContainer.appendChild(lyricsDiv);
-    }
-
-    function randomColor() {
-      const colors = ['red-300', 'yellow-300', 'green-300', 'blue-300', 'pink-300', 'purple-300'];
-      return colors[Math.floor(Math.random() * colors.length)];
-    }
-
-    songs.forEach((song, index) => {
-      const songDiv = document.createElement('div');
-      songDiv.className = "bg-white bg-opacity-20 p-6 rounded-2xl flex flex-col items-center hover:scale-105 transition-transform";
-      songDiv.innerHTML = `
-        <img src="${song.thumbnail}" class="w-24 h-24 rounded-full mb-4 shadow-lg">
-        <h2 class="text-white font-bold text-lg mb-4 text-center">${song.title}</h2>
-        <div class="flex gap-4">
-          <button onclick="playMedia(${index}, 'video')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg">Play Video</button>
-          <button onclick="playMedia(${index}, 'music')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Play Music</button>
-        </div>
-      `;
-      document.getElementById('playlist').appendChild(songDiv);
-    });
-  </script></body>
-</html><!--DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Muzica - Starry's Playlist</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gradient-to-br from-indigo-400 to-pink-400 min-h-screen p-6">
-
-  <h1 class="text-4xl font-bold text-center text-white mb-8 animate-bounce">Muzica Playlist</h1>
-
-  <div id="playlist" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
-
-  <script>
-    const songs = [
-      {
-        title: "The Scientist - Coldplay",
-        thumbnail: "download (2).jpeg",
-        videoUrl: "Coldplay - The Scientist (Official 4K Video)(480P).mp4", 
-        musicUrl: "Coldplay - The Scientist (Official 4K Video)(MP3_160K).mp3",
-        lyricsUrl: "https://raw.githubusercontent.com/StarRy7c/Muzica/main/coldplay%20-%20The%20Scientist.lrc"
-      },
-      {
-        title: "Fix You - Coldplay",
-        thumbnail: "https://upload.wikimedia.org/wikipedia/en/8/8a/Coldplay_-_Fix_You.png",
-        videoUrl: "https://your_video_link_here.mp4",
-        musicUrl: "https://your_music_link_here.mp3",
-        lyricsUrl: "https://your_fixyou_lrc_file_link_here.lrc"
-      },
-      {
-        title: "Let Her Go - Passenger",
-        thumbnail: "https://upload.wikimedia.org/wikipedia/en/6/69/Passenger_-_Let_Her_Go.png",
-        videoUrl: "https://your_video_link_here.mp4",
-        musicUrl: "https://your_music_link_here.mp3",
-        lyricsUrl: "https://your_lethergo_lrc_file_link_here.lrc"
-      },
-      {
-        title: "Shape of You - Ed Sheeran",
-        thumbnail: "https://upload.wikimedia.org/wikipedia/en/4/45/Shape_Of_You_%28Official_Single_Cover%29_by_Ed_Sheeran.png",
-        videoUrl: "https://your_video_link_here.mp4",
-        musicUrl: "https://your_music_link_here.mp3",
-        lyricsUrl: "https://your_shapeofyou_lrc_file_link_here.lrc"
-      },
-      {
-        title: "Someone Like You - Adele",
-        thumbnail: "https://upload.wikimedia.org/wikipedia/en/7/72/Adele_-_Someone_Like_You.png",
-        videoUrl: "https://your_video_link_here.mp4",
-        musicUrl: "https://your_music_link_here.mp3",
-        lyricsUrl: "https://your_someonelikeyou_lrc_file_link_here.lrc"
-      }
-    ];
-
-    const playlist = document.getElementById('playlist');
-    let activePlayer = null;
-
-    function removePlayer() {
-      if (activePlayer) {
-        activePlayer.remove();
-        activePlayer = null;
-      }
-    }
-
-    function parseLRC(lrcText) {
-      const lines = lrcText.split('\n');
-      const parsed = [];
-      for (let line of lines) {
-        const match = line.match(/(\d{2}):(\d{2})(?:\.(\d{2}))?(.*)/);
-        if (match) {
-          const minutes = parseInt(match[1]);
-          const seconds = parseInt(match[2]);
-          const ms = match[3] ? parseInt(match[3]) : 0;
-          const time = minutes * 60 + seconds + ms / 100;
-          const text = match[4].trim();
-          parsed.push({ time, text });
-        }
-      }
-      return parsed;
-    }
-
-    function syncLyricsPro(media, lyrics) {
-      const lyricsContainer = document.getElementById('lyricsText');
-      if (!lyricsContainer) return;
-
-      lyricsContainer.innerHTML = lyrics.map((line, idx) => `
-        <p id="line-${idx}" class="transition-all duration-300">${line.text}</p>
-      `).join('');
-
-      let currentIndex = 0;
-
-      function update() {
-        const currentTime = media.currentTime;
-
-        while (currentIndex < lyrics.length && currentTime >= lyrics[currentIndex].time) {
-          if (currentIndex > 0)
-            document.getElementById(`line-${currentIndex-1}`).classList.remove('text-yellow-300', 'text-2xl', 'font-bold');
-          const currentLine = document.getElementById(`line-${currentIndex}`);
-          currentLine.classList.add('text-yellow-300', 'text-2xl', 'font-bold');
-          currentLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          currentIndex++;
-        }
-
-        if (!media.paused && !media.ended) {
-          requestAnimationFrame(update);
-        }
-      }
-
-      media.addEventListener('play', () => {
-        currentIndex = 0;
-        update();
-      });
-
-      media.addEventListener('seeked', () => {
-        currentIndex = lyrics.findIndex(l => l.time > media.currentTime);
-      });
-    }
-
-    function playMedia(index, type) {
-      removePlayer();
-
-      const songElements = playlist.children;
-      const songElement = songElements[index];
-
-      const playerDiv = document.createElement('div');
-      playerDiv.className = "bg-white bg-opacity-30 p-4 rounded-2xl mt-6 flex flex-col items-center fade-in";
-      playerDiv.id = "active-player";
-
-      const media = document.createElement(type === 'video' ? 'video' : 'audio');
-      media.src = songs[index][type === 'video' ? 'videoUrl' : 'musicUrl'];
-      media.controls = true;
-      media.className = "rounded-xl mb-4 w-full max-w-md";
-      playerDiv.appendChild(media);
-
-      const fontSelector = document.createElement('select');
-      fontSelector.className = "mb-4 p-2 rounded text-black";
-      fontSelector.innerHTML = `
-        <option value="'Poppins', sans-serif">Poppins</option>
-        <option value="'Courier Prime', monospace">Courier</option>
-        <option value="'Merriweather', serif">Merriweather</option>
-        <option value="'Caveat', cursive">Handwritten</option>
-      `;
-      fontSelector.onchange = (e) => {
-        if (document.getElementById('lyricsText'))
-          document.getElementById('lyricsText').style.fontFamily = e.target.value;
-      };
-      playerDiv.appendChild(fontSelector);
-
-      const lyricsButton = document.createElement('button');
-      lyricsButton.innerText = "Show Lyrics";
-      lyricsButton.className = "bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-xl mb-4 transition-all";
-      playerDiv.appendChild(lyricsButton);
-
-      const lyricsDiv = document.createElement('div');
-      lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full fade-in relative hidden h-64 overflow-y-auto";
-      lyricsDiv.id = "lyricsContainer";
-      lyricsDiv.innerHTML = `<div id="lyricsText" class="whitespace-pre-wrap text-center text-lg space-y-2"></div>`;
-      playerDiv.appendChild(lyricsDiv);
+      playerDiv.appendChild(lyricsBtn);
 
       songElement.insertAdjacentElement('afterend', playerDiv);
       activePlayer = playerDiv;
 
-      fetch(`https://corsproxy.io/?${encodeURIComponent(songs[index].lyricsUrl)}`)
-        .then(response => response.text())
-        .then(data => {
-          const parsedLyrics = parseLRC(data);
-          lyricsButton.onclick = () => {
-            lyricsDiv.classList.remove('hidden');
-            syncLyricsPro(media, parsedLyrics);
-            lyricsButton.disabled = true;
-            lyricsButton.innerText = "Lyrics Showing...";
-          };
-        })
-        .catch(err => {
-          console.error("Lyrics failed to load.", err);
-        });
+      lucide.createIcons();
     }
 
-    songs.forEach((song, index) => {
-      const songDiv = document.createElement('div');
-      songDiv.className = "bg-white bg-opacity-20 p-6 rounded-2xl flex flex-col items-center transition-all hover:scale-105";
-      songDiv.innerHTML = `
-        <img src="${song.thumbnail}" class="w-32 h-32 rounded-full mb-4 shadow-lg">
-        <h2 class="text-white font-bold text-xl mb-4 text-center">${song.title}</h2>
-        <div class="flex gap-4">
-          <button onclick="playMedia(${index}, 'video')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg">Play Video</button>
-          <button onclick="playMedia(${index}, 'music')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Play Music</button>
-        </div>
-      `;
-      playlist.appendChild(songDiv);
-    });
-
-  </script>
-</body>
-</html><!--DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Muzica - Starry's Playlist</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gradient-to-br from-indigo-400 to-pink-400 min-h-screen p-6">
-
-  <h1 class="text-4xl font-bold text-center text-white mb-8 animate-bounce">Muzica Playlist</h1>
-
-  <div id="playlist" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-  
-  </div>
-
-  <script>
-    const songs = [
-      {
-        title: "The Scientist - Coldplay",
-        thumbnail: "https://i.scdn.co/image/ab67616d0000b273d2cb8a1385bb5dddb58a4c4d", // Example thumbnail
-        videoUrl: "Coldplay - The Scientist (Official 4K Video)(480P).mp4", // Replace with real
-        musicUrl: "Coldplay - The Scientist (Official 4K Video)(MP3_160K).mp3", // Replace with real
-        lyricsUrl: "https://raw.githubusercontent.com/StarRy7c/Muzica/main/coldplay%20-%20The%20Scientist.lrc"
-      }
-    ];
-
-    const playlist = document.getElementById('playlist');
-    let activePlayer = null;
-
-    function removePlayer() {
-      if (activePlayer) {
-        activePlayer.remove();
-        activePlayer = null;
-      }
-    }
-
-    function parseLRC(lrcText) {
-      const lines = lrcText.split('\n');
-      const parsed = [];
-      for (let line of lines) {
-        const match = line.match(/(\d{2}):(\d{2})(?:\.(\d{2}))?(.*)/);
-        if (match) {
-          const minutes = parseInt(match[1]);
-          const seconds = parseInt(match[2]);
-          const ms = match[3] ? parseInt(match[3]) : 0;
-          const time = minutes * 60 + seconds + ms / 100;
-          const text = match[4].trim();
-          parsed.push({ time, text });
-        }
-      }
-      return parsed;
-    }
-
-    function syncLyricsPro(media, lyrics) {
-      const lyricsContainer = document.getElementById('lyricsText');
-      if (!lyricsContainer) return;
-
-      lyricsContainer.innerHTML = lyrics.map((line, idx) => `
-        <p id="line-${idx}" class="transition-all duration-300">${line.text}</p>
-      `).join('');
-
-      let currentIndex = 0;
-
-      function update() {
-        const currentTime = media.currentTime;
-
-        while (currentIndex < lyrics.length && currentTime >= lyrics[currentIndex].time) {
-          if (currentIndex > 0)
-            document.getElementById(`line-${currentIndex-1}`).classList.remove('text-yellow-300', 'text-2xl', 'font-bold');
-          const currentLine = document.getElementById(`line-${currentIndex}`);
-          currentLine.classList.add('text-yellow-300', 'text-2xl', 'font-bold');
-          currentLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          currentIndex++;
-        }
-
-        if (!media.paused && !media.ended) {
-          requestAnimationFrame(update);
-        }
-      }
-
-      media.addEventListener('play', () => {
-        currentIndex = 0;
-        update();
-      });
-
-      media.addEventListener('seeked', () => {
-        currentIndex = lyrics.findIndex(l => l.time > media.currentTime);
-      });
-    }
-
-    function playMedia(index, type) {
-      removePlayer();
-
-      const songElements = playlist.children;
-      const songElement = songElements[index];
-
-      const playerDiv = document.createElement('div');
-      playerDiv.className = "bg-white bg-opacity-30 p-4 rounded-2xl mt-6 flex flex-col items-center fade-in";
-      playerDiv.id = "active-player";
-
-      const media = document.createElement(type === 'video' ? 'video' : 'audio');
-      media.src = songs[index][type === 'video' ? 'videoUrl' : 'musicUrl'];
-      media.controls = true;
-      media.className = "rounded-xl mb-4 w-full max-w-md";
-      playerDiv.appendChild(media);
-
-      const fontSelector = document.createElement('select');
-      fontSelector.className = "mb-4 p-2 rounded text-black";
-      fontSelector.innerHTML = `
-        <option value="'Poppins', sans-serif">Poppins</option>
-        <option value="'Courier Prime', monospace">Courier</option>
-        <option value="'Merriweather', serif">Merriweather</option>
-        <option value="'Caveat', cursive">Handwritten</option>
-      `;
-      fontSelector.onchange = (e) => {
-        if (document.getElementById('lyricsText'))
-          document.getElementById('lyricsText').style.fontFamily = e.target.value;
-      };
-      playerDiv.appendChild(fontSelector);
-
-      const lyricsButton = document.createElement('button');
-      lyricsButton.innerText = "Show Lyrics";
-      lyricsButton.className = "bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-xl mb-4 transition-all";
-      playerDiv.appendChild(lyricsButton);
-
+    function showLyrics(index, parentDiv) {
       const lyricsDiv = document.createElement('div');
-      lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full fade-in relative hidden h-64 overflow-y-auto";
-      lyricsDiv.id = "lyricsContainer";
-      lyricsDiv.innerHTML = `<div id="lyricsText" class="whitespace-pre-wrap text-center text-lg space-y-2"></div>`;
-      playerDiv.appendChild(lyricsDiv);
+      lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full animate-fade-in relative";
 
-      songElement.insertAdjacentElement('afterend', playerDiv);
-      activePlayer = playerDiv;
+      lyricsDiv.innerHTML = `
+        <button onclick="this.parentElement.remove()" class="absolute top-2 right-4 text-2xl">&times;</button>
+        <pre id="lyricsText" class="whitespace-pre-wrap text-sm"></pre>
+      `;
 
-      // Fetch lyrics immediately
+      parentDiv.appendChild(lyricsDiv);
+
       fetch(songs[index].lyricsUrl)
         .then(response => response.text())
-        .then(data => {
-          const parsedLyrics = parseLRC(data);
-          lyricsButton.onclick = () => {
-            lyricsDiv.classList.remove('hidden');
-            syncLyricsPro(media, parsedLyrics);
-            lyricsButton.disabled = true;
-            lyricsButton.innerText = "Lyrics Showing...";
-          };
+        .then(text => {
+          lyricsDiv.querySelector('#lyricsText').innerText = text;
         })
-        .catch(err => {
-          console.error("Lyrics failed to load.", err);
+        .catch(() => {
+          lyricsDiv.querySelector('#lyricsText').innerText = "Failed to load lyrics.";
         });
     }
 
-    // Inject Songs
-    songs.forEach((song, index) => {
-      const songDiv = document.createElement('div');
-      songDiv.className = "bg-white bg-opacity-20 p-6 rounded-2xl flex flex-col items-center transition-all hover:scale-105";
-      songDiv.innerHTML = `
-        <img src="${song.thumbnail}" class="w-32 h-32 rounded-full mb-4 shadow-lg">
-        <h2 class="text-white font-bold text-xl mb-4 text-center">${song.title}</h2>
-        <div class="flex gap-4">
-          <button onclick="playMedia(${index}, 'video')" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg">Play Video</button>
-          <button onclick="playMedia(${index}, 'music')" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Play Music</button>
-        </div>
-      `;
-      playlist.appendChild(songDiv);
-    });
-
-  </script>
-</body>
-</html><!--DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Animated Music Playlist</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Caveat&family=Courier+Prime&family=Merriweather&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f5a623, #f76b1c, #f50057, #651fff);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-    }
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .highlight {
-      color: #ffeb3b;
-      font-weight: bold;
-      text-shadow: 0 0 10px #ffeb3b;
-    }
-    .fade-in {
-      animation: fadeIn 1s ease-in-out forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-  </style>
-</head>
-<body class="text-white min-h-screen flex flex-col items-center p-5">
-
-  <h1 class="text-4xl font-bold mb-8 animate-bounce">My Colorful Playlist</h1>
-
-  <div id="playlist" class="flex flex-col gap-8 w-full max-w-4xl">
-    
-  </div>
-
-<script>
-const songs = [
-  {
-    title: "The Scientist",
-    thumbnail: "download (2).jpeg",
-    videoUrl: "Coldplay - The Scientist (Official 4K Video)(480P).mp4",
-    musicUrl: "Coldplay - The Scientist (Official 4K Video)(MP3_160K).mp3",
-    lyricsUrl: "https://raw.githubusercontent.com/StarRy7c/Muzica/main/coldplay%20-%20The%20Scientist.lrc"
-  },
-  {
-      title: "Song Three",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Three",
-      videoUrl: "https://yourgithub.com/video3.mp4",
-      musicUrl: "https://yourgithub.com/music3.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics3.txt"
-    },
-    {
-      title: "Song Four",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Four",
-      videoUrl: "https://yourgithub.com/video4.mp4",
-      musicUrl: "https://yourgithub.com/music4.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics4.txt"
-    },
-    {
-      title: "Song Five",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Five",
-      videoUrl: "https://yourgithub.com/video5.mp4",
-      musicUrl: "https://yourgithub.com/music5.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics5.txt"
-    },
-];
-
-const playlist = document.getElementById('playlist');
-let activePlayer = null;
-let lyricsInterval = null;
-
-songs.forEach((song, index) => {
-  const songDiv = document.createElement('div');
-  songDiv.className = "bg-white bg-opacity-20 hover:bg-opacity-30 p-5 rounded-xl cursor-pointer transform hover:scale-105 transition-all shadow-lg";
-  songDiv.innerHTML = `
-    <img src="${song.thumbnail}" alt="${song.title}" class="rounded-xl mb-4 mx-auto">
-    <h3 class="text-2xl font-semibold text-center mb-2">${song.title}</h3>
-    <div class="flex justify-center gap-4">
-      <button onclick="playMedia(${index}, 'video')" class="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-xl transition-all">Play Video</button>
-      <button onclick="playMedia(${index}, 'audio')" class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-xl transition-all">Play Music</button>
-    </div>
-  `;
-  playlist.appendChild(songDiv);
-});
-
-function playMedia(index, type) {
-  removePlayer();
-
-  const songElements = playlist.children;
-  const songElement = songElements[index];
-
-  const playerDiv = document.createElement('div');
-  playerDiv.className = "bg-white bg-opacity-30 p-4 rounded-2xl mt-6 flex flex-col items-center fade-in";
-  playerDiv.id = "active-player";
-
-  const media = document.createElement(type === 'video' ? 'video' : 'audio');
-  media.src = songs[index][type === 'video' ? 'videoUrl' : 'musicUrl'];
-  media.controls = true;
-  media.className = "rounded-xl mb-4 w-full max-w-md";
-  playerDiv.appendChild(media);
-
-  // Font selection
-  const fontSelector = document.createElement('select');
-  fontSelector.className = "mb-4 p-2 rounded text-black";
-  fontSelector.innerHTML = `
-    <option value="'Poppins', sans-serif">Poppins</option>
-    <option value="'Courier Prime', monospace">Courier</option>
-    <option value="'Merriweather', serif">Merriweather</option>
-    <option value="'Caveat', cursive">Handwritten</option>
-  `;
-  fontSelector.onchange = (e) => {
-    if (document.getElementById('lyricsText'))
-      document.getElementById('lyricsText').style.fontFamily = e.target.value;
-  };
-  playerDiv.appendChild(fontSelector);
-
-  const lyricsDiv = document.createElement('div');
-  lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full fade-in relative hidden";
-  lyricsDiv.id = "lyricsContainer";
-  lyricsDiv.innerHTML = `
-    <div id="lyricsText" class="whitespace-pre-wrap text-center text-lg"></div>
-  `;
-  playerDiv.appendChild(lyricsDiv);
-
-  songElement.insertAdjacentElement('afterend', playerDiv);
-  activePlayer = playerDiv;
-
-  loadLyrics(songs[index].lyricsUrl, media);
-}
-
-function loadLyrics(url, media) {
-  fetch(url)
-    .then(response => response.text())
-    .then(data => {
-      const parsedLyrics = parseLRC(data);
-      if (parsedLyrics.length > 0) {
-        document.getElementById('lyricsContainer').classList.remove('hidden');
-        syncLyrics(media, parsedLyrics);
+    function removePlayer() {
+      if (activePlayer) {
+        activePlayer.remove();
+        activePlayer = null;
       }
-    })
-    .catch(err => {
-      console.error("Lyrics failed to load.", err);
-    });
-}
-
-function parseLRC(lrc) {
-  const lines = lrc.split('\n');
-  const result = [];
-  for (let line of lines) {
-    const match = line.match(/(\d+):(\d+(\.\d+)?)(.+)/);
-    if (match) {
-      const min = parseInt(match[1]);
-      const sec = parseFloat(match[2]);
-      const text = match[4].trim();
-      result.push({ time: min * 60 + sec, text });
-    }
-  }
-  return result;
-}
-
-function syncLyrics(media, lyrics) {
-  const lyricsText = document.getElementById('lyricsText');
-  let currentLine = 0;
-
-  clearInterval(lyricsInterval);
-  lyricsInterval = setInterval(() => {
-    const currentTime = media.currentTime;
-    if (currentLine < lyrics.length - 1 && currentTime >= lyrics[currentLine + 1].time) {
-      currentLine++;
-    }
-    if (lyrics[currentLine]) {
-      lyricsText.innerHTML = lyrics.map((line, index) => 
-        `<div class="${index === currentLine ? 'highlight' : ''}">${line.text}</div>`
-      ).join('');
-    }
-  }, 500);
-}
-
-function removePlayer() {
-  if (activePlayer) {
-    activePlayer.remove();
-    activePlayer = null;
-  }
-  clearInterval(lyricsInterval);
-}
-</script>
-
-</body>
-</html--><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Colorful Music Playlist</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f5a623, #f76b1c, #f50057, #651fff);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-    }
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-  </style>
-</head>
-<body class="text-white min-h-screen flex flex-col items-center p-5">
-
-  <h1 class="text-4xl font-bold mb-8 animate-bounce">My Colorful Playlist</h1>
-
-  <div id="playlist" class="flex flex-col gap-8 w-full max-w-4xl">
-  
-  </div>
-
-<script>
-  const songs = [
-    {
-      title: "Coldplay - The Scientist (Live in Madrid 2011)",
-      thumbnail: "download (2).jpeg",
-      videoUrl: "Coldplay - The Scientist (Live in Madrid 2011)(480P).mp4",
-      musicUrl: "Coldplay - The Scientist (Live in Madrid 2011)(MP3_160K).mp3",
-      lyricsUrl: "https://raw.githubusercontent.com/StarRy7c/Muzica/main/coldplay%20-%20The%20Scientist.lrc"
-    },
-    {
-      title: "Song Two",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Two",
-      videoUrl: "https://yourgithub.com/video2.mp4",
-      musicUrl: "https://yourgithub.com/music2.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics2.txt"
-    },
-    {
-      title: "Song Three",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Three",
-      videoUrl: "https://yourgithub.com/video3.mp4",
-      musicUrl: "https://yourgithub.com/music3.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics3.txt"
-    },
-    {
-      title: "Song Four",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Four",
-      videoUrl: "https://yourgithub.com/video4.mp4",
-      musicUrl: "https://yourgithub.com/music4.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics4.txt"
-    },
-    {
-      title: "Song Five",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Five",
-      videoUrl: "https://yourgithub.com/video5.mp4",
-      musicUrl: "https://yourgithub.com/music5.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics5.txt"
-    },
-  ];
-
-  const playlist = document.getElementById('playlist');
-  let activePlayer = null;
-
-  songs.forEach((song, index) => {
-    const songDiv = document.createElement('div');
-    songDiv.className = "bg-white bg-opacity-20 hover:bg-opacity-30 p-5 rounded-xl cursor-pointer transform hover:scale-105 transition-all shadow-lg";
-    songDiv.innerHTML = `
-      <img src="${song.thumbnail}" alt="${song.title}" class="rounded-xl mb-4 mx-auto">
-      <h3 class="text-2xl font-semibold text-center mb-2">${song.title}</h3>
-      <div class="flex justify-center gap-4">
-        <button onclick="playMedia(${index}, 'video')" class="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-xl transition-all">Play Video</button>
-        <button onclick="playMedia(${index}, 'audio')" class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-xl transition-all">Play Music</button>
-      </div>
-    `;
-    playlist.appendChild(songDiv);
-  });
-
-  function playMedia(index, type) {
-    removePlayer();
-
-    const songElements = playlist.children;
-    const songElement = songElements[index];
-
-    // Create a player container
-    const playerDiv = document.createElement('div');
-    playerDiv.className = "bg-white bg-opacity-30 p-4 rounded-2xl mt-6 flex flex-col items-center animate-fade-in";
-    playerDiv.id = "active-player";
-
-    if (type === 'video') {
-      playerDiv.innerHTML = `
-        <video src="${songs[index].videoUrl}" controls class="rounded-xl mb-4 w-full max-w-md"></video>
-      `;
-    } else {
-      playerDiv.innerHTML = `
-        <audio src="${songs[index].musicUrl}" controls class="w-full max-w-md mb-4"></audio>
-      `;
     }
 
-    const lyricsBtn = document.createElement('button');
-    lyricsBtn.className = "bg-yellow-400 hover:bg-yellow-500 text-black py-2 px-6 rounded-xl transition-all";
-    lyricsBtn.innerText = "Show Lyrics";
-    lyricsBtn.onclick = () => showLyrics(index, playerDiv);
-
-    playerDiv.appendChild(lyricsBtn);
-
-    // Insert the player right after the selected song
-    songElement.insertAdjacentElement('afterend', playerDiv);
-    activePlayer = playerDiv;
-  }
-
-  function showLyrics(index, parentDiv) {
-    const lyricsDiv = document.createElement('div');
-    lyricsDiv.className = "bg-gradient-to-br from-pink-400 to-purple-600 text-white p-4 mt-4 rounded-xl w-full animate-fade-in relative";
-
-    lyricsDiv.innerHTML = `
-      <button onclick="this.parentElement.remove()" class="absolute top-2 right-4 text-2xl">&times;</button>
-      <pre id="lyricsText" class="whitespace-pre-wrap"></pre>
-    `;
-
-    parentDiv.appendChild(lyricsDiv);
-
-    // Fetch and display lyrics
-    fetch(songs[index].lyricsUrl)
-      .then(response => response.text())
-      .then(text => {
-        lyricsDiv.querySelector('#lyricsText').innerText = text;
-      })
-      .catch(err => {
-        lyricsDiv.querySelector('#lyricsText').innerText = "Failed to load lyrics.";
-      });
-  }
-
-  function removePlayer() {
-    if (activePlayer) {
-      activePlayer.remove();
-      activePlayer = null;
-    }
-  }
-</script>
-
-</body>
-</html><!--DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Colorful Music Playlist</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f5a623, #f76b1c, #f50057, #651fff);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-    }
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-  </style>
-</head>
-<body class="text-white min-h-screen flex flex-col items-center p-5">
-
-  <h1 class="text-4xl font-bold mb-8 animate-bounce">My Colorful Playlist</h1>
-
-  <div id="playlist" class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
-  
-  </div>
-
-
-  <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="bg-white text-black p-6 rounded-2xl shadow-xl w-11/12 max-w-md relative">
-      <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-black text-2xl">&times;</button>
-      <h2 id="modalTitle" class="text-2xl font-bold mb-4"></h2>
-      <div class="flex flex-col gap-4">
-        <button id="videoBtn" class="bg-pink-500 hover:bg-pink-600 text-white py-2 rounded-xl transition-all">Play Video</button>
-        <button id="musicBtn" class="bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-xl transition-all">Play Music</button>
-        <button id="lyricsBtn" class="bg-yellow-400 hover:bg-yellow-500 text-black py-2 rounded-xl transition-all">View Lyrics</button>
-      </div>
-    </div>
-  </div>
-
-  
-  <div id="lyricsModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
-    <div class="bg-gradient-to-br from-pink-400 to-purple-600 text-white p-6 rounded-2xl shadow-xl w-11/12 max-w-lg relative overflow-y-auto max-h-[80vh]">
-      <button onclick="closeLyrics()" class="absolute top-3 right-3 text-white hover:text-gray-300 text-2xl">&times;</button>
-      <h2 class="text-2xl font-bold mb-4">Lyrics</h2>
-      <pre id="lyricsContent" class="whitespace-pre-wrap"></pre>
-    </div>
-  </div>
-
-<script>
-  const songs = [
-    {
-      title: "Song One",
-      thumbnail: "download (2).jpeg",
-      videoUrl: "Coldplay - The Scientist (Live in Madrid 2011)(480P).mp4",
-      musicUrl: "Coldplay - The Scientist (Live in Madrid 2011)(MP3_160K).mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics1.txt"
-    },
-    {
-      title: "Song Two",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Two",
-      videoUrl: "https://yourgithub.com/video2.mp4",
-      musicUrl: "https://yourgithub.com/music2.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics2.txt"
-    },
-    {
-      title: "Song Three",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Three",
-      videoUrl: "https://yourgithub.com/video3.mp4",
-      musicUrl: "https://yourgithub.com/music3.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics3.txt"
-    },
-    {
-      title: "Song Four",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Four",
-      videoUrl: "https://yourgithub.com/video4.mp4",
-      musicUrl: "https://yourgithub.com/music4.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics4.txt"
-    },
-    {
-      title: "Song Five",
-      thumbnail: "https://via.placeholder.com/300x200.png?text=Song+Five",
-      videoUrl: "https://yourgithub.com/video5.mp4",
-      musicUrl: "https://yourgithub.com/music5.mp3",
-      lyricsUrl: "https://yourgithub.com/lyrics5.txt"
-    },
-  ];
-
-  const playlist = document.getElementById('playlist');
-  const modal = document.getElementById('modal');
-  const lyricsModal = document.getElementById('lyricsModal');
-  let currentSong = null;
-
-  songs.forEach((song, index) => {
-    const card = document.createElement('div');
-    card.className = "bg-white bg-opacity-20 hover:bg-opacity-30 p-5 rounded-xl cursor-pointer transform hover:scale-105 transition-all shadow-lg";
-    card.innerHTML = `
-      <img src="${song.thumbnail}" alt="${song.title}" class="rounded-xl mb-4">
-      <h3 class="text-xl font-semibold text-center">${song.title}</h3>
-    `;
-    card.onclick = () => openModal(index);
-    playlist.appendChild(card);
-  });
-
-  function openModal(index) {
-    currentSong = songs[index];
-    document.getElementById('modalTitle').innerText = currentSong.title;
-    modal.classList.remove('hidden');
-  }
-
-  function closeModal() {
-    modal.classList.add('hidden');
-  }
-
-  function closeLyrics() {
-    lyricsModal.classList.add('hidden');
-  }
-
-  document.getElementById('videoBtn').onclick = () => {
-    window.open(currentSong.videoUrl, '_blank');
-  };
-
-  document.getElementById('musicBtn').onclick = () => {
-    window.open(currentSong.musicUrl, '_blank');
-  };
-
-  document.getElementById('lyricsBtn').onclick = async () => {
-    try {
-      const response = await fetch(currentSong.lyricsUrl);
-      const text = await response.text();
-      document.getElementById('lyricsContent').innerText = text;
-      lyricsModal.classList.remove('hidden');
-    } catch (error) {
-      alert("Error loading lyrics.");
-    }
-  };
-</script>
+    lucide.createIcons();
+  </script>
 
 </body>
 </html>
+
