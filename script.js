@@ -180,22 +180,26 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             const handleNavigation = (event) => {
-                 if (event.target !== event.currentTarget && event.target.classList.contains('ripple')) {
-                     return; // Ignore clicks on the ripple itself
-                 }
+    if (event.target !== event.currentTarget && event.target.classList.contains('ripple')) {
+        return; // Ignore clicks on the ripple itself
+    }
 
-                console.log(`Button clicked for ID: ${playlistId}`);
+    console.log(`Button clicked for ID: ${playlistId}`);
 
-                if (playlistData && playlistData.playlistUrl) {
-                    console.log(`Found URL: ${playlistData.playlistUrl}. Navigating...`);
-                    // Choose one:
-                    // window.location.href = playlistData.playlistUrl; // Same tab
-                    window.open(playlistData.playlistUrl, '_blank');   // New tab
-                } else {
-                    console.log(`No valid playlistUrl found for ID: ${playlistId}. Playlist data found:`, playlistData);
-                }
-            };
+    if (playlistData && playlistData.playlistUrl) {
+        console.log(`Found URL: ${playlistData.playlistUrl}. Navigating...`);
+        
+        // Send message to WebView instead of opening a new tab
+        if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(playlistData.playlistUrl);
+        } else {
+            window.location.href = playlistData.playlistUrl; // fallback
+        }
 
+    } else {
+        console.log(`No valid playlistUrl found for ID: ${playlistId}. Playlist data found:`, playlistData);
+    }
+};
             // --- Clean up potential old listeners before adding new ones ---
             // A more robust way is needed if listeners pile up, but let's try this simple re-add.
             // If navigation happens multiple times per click, this needs refinement.
