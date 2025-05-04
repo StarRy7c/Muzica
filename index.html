@@ -33,13 +33,11 @@
   </div>
 
   <script>
-    document.getElementById('showSearch').addEventListener('click', function () {
-      document.getElementById('searchSection').style.display = 'block';
-      this.style.display = 'none';
-    });
-
     document.getElementById('searchBtn').addEventListener('click', function () {
-      const query = document.getElementById('searchInput').value;
+  let query = document.getElementById('searchInput').value;
+  if (!query.toLowerCase().includes('song')) {
+    query += ' song'; // Add "song" to the search query if not already present
+  }
       const apiKey = 'AIzaSyAdQa6K5hJvoI5JFqAsktLWfHm2ggTFdJs';
 
       fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`)
