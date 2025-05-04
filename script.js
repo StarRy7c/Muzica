@@ -3,11 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const playlists = {
         en: [
             {
-                id: 'https://starry7c.github.io/Muzica/musics.html',
-                imageUrl: 'download (2).jpeg',
-                title: 'Top Pop Hits',
-                description: 'Catch the latest chart-topping pop anthems.'
-            },
+    id: 'en1', // Simple identifier
+    imageUrl: 'uD6zENCJz1g-HD (1).jpg', // Corrected image path
+    title: 'Top Pop Hits',
+    description: 'Catch the latest chart-topping pop anthems.',
+    playlistUrl: 'https://starry7c.github.io/Muzica/musics.html' // URL for navigation
+            }
+            
             {
                 id: 'en2',
                 imageUrl: 'https://via.placeholder.com/150/33FF57/FFFFFF?text=Chill',
@@ -167,19 +169,22 @@ document.addEventListener('DOMContentLoaded', () => {
       */
      function attachRippleEffect() {
         const buttons = document.querySelectorAll('.open-playlist-btn');
-        buttons.forEach(button => {
-            // Remove existing listener to prevent duplicates if re-rendering
-            button.removeEventListener('click', createRipple);
-            // Add the listener
-            button.addEventListener('click', createRipple);
+        // Inside the loop or function where buttons are handled...
+const button = /* ... get reference to the button ... */;
+const playlistData = /* ... get the corresponding playlist object ... */;
 
-            // Add a basic console log for demonstration
-            button.addEventListener('click', (e) => {
-                 if (e.target === button) { // Prevent triggering if click is on ripple span itself
-                     console.log(`Opening playlist: ${button.dataset.playlistId}`);
-                     // Add actual navigation or modal opening logic here
-                 }
-            });
+button.addEventListener('click', (e) => {
+     if (e.target === button && playlistData.playlistUrl) { // Check if URL exists
+         console.log(`Opening playlist URL: ${playlistData.playlistUrl}`);
+         window.location.href = playlistData.playlistUrl; // Navigate to the URL
+         // Or open in a new tab: window.open(playlistData.playlistUrl, '_blank');
+     } else if (e.target === button) {
+         console.log(`Playlist data for ID: ${playlistData.id}`);
+         // Fallback action if no URL
+     }
+ });
+         
+    
         });
      }
 
