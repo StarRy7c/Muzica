@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StarRy Playlist</title>
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+      color: #00ffc3;
+    }
+
+    input[type="text"] {
+      width: 300px;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      background: #00ffc3;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .song-info {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .song-info img {
+      width: 200px;
+      border-radius: 12px;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>StarRy Playlist</h1>
+  <input type="text" id="searchInput" placeholder="Enter song name..." />
+  <button onclick="searchSong()">Search</button>
+
+  <div class="song-info" id="songInfo"></div>
+
+  <script>
+    async function searchSong() {
+      const query = document.getElementById('searchInput').value;
+      const response = await fetch(`http://localhost:5000/result/?query=${encodeURIComponent(query)}`);
+      const data = await response.json();
+
+      if (data.length > 0) {
+        const song = data[0]; // Top result
+        const songInfoDiv = document.getElementById('songInfo');
+
+        songInfoDiv.innerHTML = `
+          <h2>${song.song}</h2>
+          <p>${song.singers}</p>
+          <img src="${song.image}" alt="Album Art" />
+          <audio controls autoplay>
+            <source src="${song.downloadUrl[4].link}" type="audio/mpeg">
+            Your browser does not support the audio element.
+          </audio>
+        `;
+      } else {
+        document.getElementById('songInfo').innerHTML = 'No results found.';
+      }
+    }
+  </script>
+
+</body>
+</html>
