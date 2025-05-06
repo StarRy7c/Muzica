@@ -1,10 +1,35 @@
-<iframe 
-    id="contentFrame" 
-    width="100%" 
-    height="605" 
-    src="https://m.soundcloud.com/search?q=Pop" 
-    sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation" 
-    frameborder="0" 
-    allowfullscreen="true" 
-    scrolling="no">
-</iframe>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hindi Song Search</title>
+</head>
+<body>
+  <h2>Search Hindi Songs on SoundCloud</h2>
+  <input type="text" id="searchQuery" placeholder="Enter song name" />
+  <button onclick="searchSong()">Search</button>
+
+  <div id="player"></div>
+
+  <script>
+    function searchSong() {
+      const query = document.getElementById("searchQuery").value;
+      const playerDiv = document.getElementById("player");
+      const encodedQuery = encodeURIComponent(query);
+
+      // Search on SoundCloud with public search link
+      fetch(`https://api.soundcloud.com/tracks?q=${encodedQuery}&client_id=YOUR_CLIENT_ID`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length > 0) {
+            const trackUrl = data[0].permalink_url;
+            const iframe = `<iframe width="100%" height="166" scrolling="no" frameborder="no"
+              allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}"></iframe>`;
+            playerDiv.innerHTML = iframe;
+          } else {
+            playerDiv.innerHTML = "No tracks found.";
+          }
+        });
+    }
+  </script>
+</body>
+</html>
